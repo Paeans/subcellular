@@ -69,11 +69,11 @@ for train_index, test_index in kf.split(pssmpse):
     ce_list.append(coverage_error(test_y, pred_y) - 1)
     
 with open(fname + '_4802_res.txt', 'w') as result_file:    
-    result_file.write('the ap score is: ' + str(ap_list))
-    result_file.write('average is: {}'.format(sum(ap_list)/len(ap_list)))
+    result_file.write('the ap score is: ' + str(ap_list) + '\n')
+    result_file.write('average is: {}'.format(sum(ap_list)/len(ap_list)) + '\n')
 
-    result_file.write('the rl score is: ' + str(rl_list))
-    result_file.write('average is: {}'.format(sum(rl_list)/len(rl_list)))
+    result_file.write('the rl score is: ' + str(rl_list) + '\n')
+    result_file.write('average is: {}'.format(sum(rl_list)/len(rl_list)) + '\n')
 
-    result_file.write('the ce score is: ' + str(ce_list))
-    result_file.write('average is: {}'.format(sum(ce_list)/len(ce_list)))
+    result_file.write('the ce score is: ' + str(ce_list) + '\n')
+    result_file.write('average is: {}'.format(sum(ce_list)/len(ce_list)) + '\n')
