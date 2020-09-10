@@ -12,7 +12,7 @@ from sklearn.model_selection import KFold
 
 
 fname = sys.argv[1]
-num_folds = 10
+num_folds = 5
 
 Y_4802 = loadmat('Y_4802.mat')['Y_4802']
 X_4802_feature = loadmat('feature_4802.mat')
