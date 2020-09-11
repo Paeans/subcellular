@@ -87,8 +87,8 @@ for train_index, test_index in kf.split(Y_4802):
     test_y = Y_4802[test_index]
     
     pred_y = model.predict(test_x)
-    ap_score = avgprec(test_y, pred_y)
-    ap_list.append(ap_score)
+    
+    ap_list.append(avgprec(test_y, pred_y))
     rl_list.append(label_ranking_loss(test_y, pred_y))
     ce_list.append(coverage_error(test_y, pred_y) - 1)
     
