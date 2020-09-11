@@ -13,7 +13,7 @@ from sklearn.metrics import label_ranking_average_precision_score as avgprec
 from sklearn.metrics import coverage_error, label_ranking_loss
 
 fname = sys.argv[1]
-num_folds = 10
+num_folds = 5
 
 Y_4802 = loadmat('Y_4802.mat')['Y_4802']
 X_4802_feature = loadmat('feature_4802.mat')
