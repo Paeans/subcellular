@@ -62,8 +62,7 @@ for train_index, test_index in kf.split(pssmpse):
     model.compile("adam", "binary_crossentropy", metrics=["binary_accuracy"])
     
     for i in range(10):
-        model.fit(train_x, train_y, batch_size=8, epochs=5)   
-
+        model.fit(train_x, train_y, batch_size=8, epochs=5)
         pred_y = model.predict(test_x)
 
         ap_list.append(avgprec(test_y, pred_y))
