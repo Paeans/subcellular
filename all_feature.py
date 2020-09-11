@@ -66,7 +66,7 @@ for train_index, test_index in kf.split(Y_4802):
     x = layers.Dense(37, activation='sigmoid')(x)
     model = keras.Model(inputs=[m.input for m in model_list], outputs = x)
     model.compile("adam", "binary_crossentropy", metrics=["binary_accuracy"])
-    model.fit(train_x, train_y, batch_size=8, epochs=100)
+    model.fit(train_x, train_y, batch_size=8, epochs=50)
     
     test_y = Y_4802[test_index]    
     pred_y = model.predict(test_x)

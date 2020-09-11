@@ -57,7 +57,7 @@ for train_index, test_index in kf.split(pssmpse):
     model = keras.Model(pssm, outputs)
 
     model.compile("adam", "binary_crossentropy", metrics=["binary_accuracy"])
-    model.fit(train_x, train_y, batch_size=8, epochs=100)
+    model.fit(train_x, train_y, batch_size=8, epochs=50)
     
     test_x = pssmpse[test_index]
     test_y = Y_4802[test_index]
