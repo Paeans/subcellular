@@ -42,6 +42,9 @@ ce_list = []
 for train_index, test_index in kf.split(pssmpse):
     train_x = pssmpse[train_index]
     train_y = Y_4802[train_index]
+    
+    test_x = pssmpse[test_index]
+    test_y = Y_4802[test_index]
 
     input_shape = pssmpse.shape
     pssm = keras.Input(shape=input_shape[1:], dtype = "float32")
@@ -57,23 +60,29 @@ for train_index, test_index in kf.split(pssmpse):
     model = keras.Model(pssm, outputs)
 
     model.compile("adam", "binary_crossentropy", metrics=["binary_accuracy"])
-    model.fit(train_x, train_y, batch_size=8, epochs=50)
     
-    test_x = pssmpse[test_index]
-    test_y = Y_4802[test_index]
+    for i in range(10):
+        model.fit(train_x, train_y, batch_size=8, epochs=5)   
+
+        pred_y = model.predict(test_x)
+
+        ap_list.append(avgprec(test_y, pred_y))
+        rl_list.append(label_ranking_loss(test_y, pred_y))
+        ce_list.append(coverage_error(test_y, pred_y) - 1)
     
-    pred_y = model.predict(test_x)
-     
-    ap_list.append(avgprec(test_y, pred_y))
-    rl_list.append(label_ranking_loss(test_y, pred_y))
-    ce_list.append(coverage_error(test_y, pred_y) - 1)
+ap_values = np.array(avgprec).reshape((10,10))
+rl_values = np.array(rl_list).reshape((10,10))
+ce_values = np.array(ce_list).reshape((10,10))
     
 with open(fname + '_4802_res.txt', 'w') as result_file:    
     result_file.write('the ap score is: ' + str(ap_list) + '\n')
     result_file.write('average is: {}'.format(sum(ap_list)/len(ap_list)) + '\n')
+    result_file.write('average is: ' +str(np.average(ap_values, axis = 0)) + '\n')
 
     result_file.write('the rl score is: ' + str(rl_list) + '\n')
     result_file.write('average is: {}'.format(sum(rl_list)/len(rl_list)) + '\n')
+    result_file.write('average is: ' +str(np.average(rl_values, axis = 0)) + '\n')
 
     result_file.write('the ce score is: ' + str(ce_list) + '\n')
     result_file.write('average is: {}'.format(sum(ce_list)/len(ce_list)) + '\n')
+    result_file.write('average is: ' +str(np.average(ce_values, axis = 0)) + '\n')
