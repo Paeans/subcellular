@@ -12,7 +12,7 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import label_ranking_average_precision_score as avgprec
 from sklearn.metrics import coverage_error, label_ranking_loss
 
-num_folds = 10
+num_folds = 5
 
 Y_4802 = loadmat('Y_4802.mat')['Y_4802']
 X_4802_feature = loadmat('feature_4802.mat')
@@ -58,6 +58,7 @@ for train_index, test_index in kf.split(Y_4802):
         x = layers.Conv2D(64, 3, activation='relu',)(x)
         #x = layers.MaxPooling2D()(x)
         x = layers.Conv2D(32, 3, activation='relu',)(x)
+        x = layers.Conv2D(16, 3, activation='relu',)(x)
         outputs = layers.Flatten()(x)
         #outputs = layers.Dense(37, activation='sigmoid')(x)
         model = keras.Model(ix, outputs)
