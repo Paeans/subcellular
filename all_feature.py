@@ -78,19 +78,19 @@ for train_index, test_index in kf.split(Y_4802):
         ce_list.append(coverage_error(test_y, pred_y) - 1)
 
     
-ap_values = np.array(avgprec).reshape((10,10))
-rl_values = np.array(rl_list).reshape((10,10))
-ce_values = np.array(ce_list).reshape((10,10))
+ap_values = np.array(ap_list).reshape((5,10))
+rl_values = np.array(rl_list).reshape((5,10))
+ce_values = np.array(ce_list).reshape((5,10))
 
 with open('all_4802_res.txt', 'w') as result_file:    
     result_file.write('the ap score is: ' + str(ap_list) + '\n')
-    result_file.write('average is: {}'.format(sum(ap_list)/len(ap_list)) + '\n')    
+    result_file.write('max is: {}'.format(np.amax(ap_values)) + '\n')    
     result_file.write('average is: ' +str(np.average(ap_values, axis = 0)) + '\n')
 
     result_file.write('the rl score is: ' + str(rl_list) + '\n')
-    result_file.write('average is: {}'.format(sum(rl_list)/len(rl_list)) + '\n')    
+    result_file.write('min is: {}'.format(np.amin(rl_values)) + '\n')    
     result_file.write('average is: ' +str(np.average(rl_values, axis = 0)) + '\n')
 
     result_file.write('the ce score is: ' + str(ce_list) + '\n')
-    result_file.write('average is: {}'.format(sum(ce_list)/len(ce_list)) + '\n')    
+    result_file.write('min is: {}'.format(np.amin(ce_values)) + '\n')    
     result_file.write('average is: ' +str(np.average(ce_values, axis = 0)) + '\n')
