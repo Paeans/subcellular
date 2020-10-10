@@ -5,7 +5,7 @@ import tensorflow as tf
 from tensorflow import keras
 from scipy.io import loadmat, savemat
 
-from tensorflow.keras import layers, regularizers
+from tensorflow.keras import layers
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -46,7 +46,7 @@ def preprocess(p_seq, l):
     s = (100 - seq_num.size)//2
     e = s + seq_num.size
     tmp[np.arange(s, e), seq_num] = 1
-    return np.transpose(tmp)
+    return tmp
 
 def p_split(p_seq, l):
     result = []
@@ -91,20 +91,30 @@ for train_index, test_index in kf.split(Y_4802_uni):
     test_x = X_4802_uni[test_index]
     test_y = Y_4802_uni[test_index]
     
-    inputs = keras.Input(shape=(22, 100,), dtype = "float32")
+    inputs = keras.Input(shape=(100, 22,), dtype = "float32")
     x = layers.Bidirectional(layers.LSTM(256, return_sequences = True))(inputs)
     #x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
     x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
+    
+    x = layers.Reshape((100, 256, 1))(x)
+
+    x = layers.Conv2D(256, (4,3), activation='relu')(x)
+    x = layers.MaxPooling2D()(x)
+    # x = layers.Dropout(.2)(x)
+    x = layers.Conv2D(128, 3, activation='relu',)(x)
+    x = layers.MaxPooling2D()(x)
+    x = layers.Conv2D(64, 3, activation='relu',)(x)
+    x = layers.MaxPooling2D()(x)
+    x = layers.Conv2D(32, 3, activation='relu',)(x)
     x = layers.Flatten()(x)
-    outputs = layers.Dense(37, activation='sigmoid',
-                           kernel_regularizer=regularizers.l1_l2(l1=1e-5, l2=1e-4))(x)
+    outputs = layers.Dense(37, activation='sigmoid')(x)
     model = keras.Model(inputs, outputs)
     model.summary()
 
     model.compile("adam", "binary_crossentropy", metrics=["binary_accuracy", "binary_crossentropy"])
 #     model.fit(train_x, train_y, batch_size=16, epochs=2)#, validation_data=(x_val, y_val))    
     for i in range(10):
-        model.fit(train_x, train_y, batch_size=32, epochs=3)
+        model.fit(train_x, train_y, batch_size=32, epochs=3, verbose = 2)
         pred_y = model.predict(test_x)
 
         ap_list.append(avgprec(test_y, pred_y))
@@ -119,7 +129,7 @@ ap_values = np.array(ap_list).reshape((5,10))
 rl_values = np.array(rl_list).reshape((5,10))
 ce_values = np.array(ce_list).reshape((5,10))
     
-with open('encoding_4802_uni.txt', 'w') as result_file:    
+with open('encoding_4802_lrg.txt', 'w') as result_file:    
     result_file.write('the ap score is: \n')
     result_file.write(str(ap_values) + '\n')
     result_file.write('max is: {}'.format(np.amax(ap_values, axis = 1)) + '\n')    
