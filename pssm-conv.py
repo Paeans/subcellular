@@ -46,7 +46,7 @@ def preprocess(p_seq, l):
     s = (100 - seq_num.size)//2
     e = s + seq_num.size
     tmp[np.arange(s, e), seq_num] = 1
-    return tmp * 250
+    return np.transpose(tmp)
 
 def p_split(p_seq, l):
     result = []
@@ -56,6 +56,27 @@ def p_split(p_seq, l):
         t = p_seq[s:e]
         if len(t) < l:
             t = p_seq[-l:]
+        s = s + l//2
+        e = s + l
+        result.append(t)
+    return result
+
+def m_split(p_seq, l):
+    result = []
+    
+    pl = p_seq.shape[0]
+    if pl < 100:
+        pre = (l-pl) // 2
+        suf = l - pl -pre
+        
+        return [np.concatenate((np.zeros((pre, p_seq.shape[1])),
+                       p_seq, np.zeros((suf, p_seq.shape[1]))), axis = 0)]
+    s = 0
+    e = s + l
+    while (s + l//2) < len(p_seq):
+        t = p_seq[s:e, :]
+        if len(t) < l:
+            t = p_seq[-l:, :]
         s = s + l//2
         e = s + l
         result.append(t)
@@ -73,7 +94,16 @@ for sq, lb in zip(sequence, Y_4802):
         uniform_one_encode.append(preprocess(r, 100))
         uniform_label.append(lb)
 
-    
+pssm_encode = []
+pd = loadmat('dataset_3106_pssm.mat')['pssm'][0]
+for p, l in zip(pd, Y_4802):
+    tmp = np.array(m_split(p, 100))
+    for t in tmp:
+        pssm_encode.append(t)
+        
+X_4802_psm = np.array(pssm_encode)
+        
+        
 X_4802_uni = np.array(uniform_one_encode)
 Y_4802_uni = np.array(uniform_label)
 
@@ -86,18 +116,18 @@ ce_list = []
 count = 0
 #with tf.device("cpu:0"):
 for train_index, test_index in kf.split(Y_4802_uni):
-    train_x = X_4802_uni[train_index]
+    train_x = X_4802_psm[train_index]
     train_y = Y_4802_uni[train_index]
     
-    test_x = X_4802_uni[test_index]
+    test_x = X_4802_psm[test_index]
     test_y = Y_4802_uni[test_index]
     
-    inputs = keras.Input(shape=(100, 22,), dtype = "float32")
-    x = layers.Bidirectional(layers.LSTM(256, return_sequences = True))(inputs)
-    #x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
-    x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
+    inputs = keras.Input(shape=(100, 42,), dtype = "float32")
+#     x = layers.Bidirectional(layers.LSTM(256, return_sequences = True))(inputs)
+#     #x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
+#     x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
     
-    x = layers.Reshape((100, 256, 1))(x)
+    x = layers.Reshape((100, 42, 1))(inputs)
 
     x = layers.Conv2D(256, (4,3), activation='relu',
                      kernel_regularizer=regularizers.l1_l2(l1=1e-5, l2=1e-4))(x)
@@ -123,7 +153,7 @@ for train_index, test_index in kf.split(Y_4802_uni):
         model.fit(train_x, train_y, batch_size=32, epochs=3, verbose = 2)
         pred_y = model.predict(test_x)
         
-        savemat('new_encoding_3106_lrg_' + str(count) + '_' + str(i) + '.mat', {'pred_y':pred_y, 'test_y':test_y})
+        savemat('new_pssm_3106_' + str(count) + '_' + str(i) + '.mat', {'pred_y':pred_y, 'test_y':test_y})
 
         ap_list.append(avgprec(test_y, pred_y))
         rl_list.append(label_ranking_loss(test_y, pred_y))
@@ -138,7 +168,7 @@ ap_values = np.array(ap_list).reshape((5,10))
 rl_values = np.array(rl_list).reshape((5,10))
 ce_values = np.array(ce_list).reshape((5,10))
     
-with open('new_encoding_3106_lrg_reg-250.txt', 'w') as result_file:    
+with open('new_pssm_3106_conv.txt', 'w') as result_file:    
     result_file.write('the ap score is: \n')
     result_file.write(str(ap_values) + '\n')
     result_file.write('max is: {}'.format(np.amax(ap_values, axis = 1)) + '\n')    

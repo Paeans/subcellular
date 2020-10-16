@@ -25,9 +25,9 @@ from sklearn.metrics import coverage_error, label_ranking_loss
 
 num_folds = 5
     
-Y_4802 = loadmat('Y_4802.mat')['Y_4802']
+Y_4802 = loadmat('Y_3106.mat')['Y_3106']
 
-sequence = loadmat('dataset_4802.mat')['Sequence']
+sequence = loadmat('dataset_3106.mat')['sequence_3106']
 amino_code = {'A':0, 'C':1, 'D':2, 'E':3, 'F':4, 'G':5, 'H':6,
              'I':7, 'K':8, 'L':9, 'M':10, 'N':11, 'P':12, 
              'Q':13, 'R':14, 'S':15, 'T':16, 'U':17, 'V':18,
@@ -46,7 +46,7 @@ def preprocess(p_seq, l):
     s = (100 - seq_num.size)//2
     e = s + seq_num.size
     tmp[np.arange(s, e), seq_num] = 1
-    return np.transpose(tmp)
+    return tmp
 
 def p_split(p_seq, l):
     result = []
@@ -83,6 +83,7 @@ ap_list = []
 rl_list = []
 ce_list = []
 
+count = 0
 #with tf.device("cpu:0"):
 for train_index, test_index in kf.split(Y_4802_uni):
     train_x = X_4802_uni[train_index]
@@ -91,21 +92,23 @@ for train_index, test_index in kf.split(Y_4802_uni):
     test_x = X_4802_uni[test_index]
     test_y = Y_4802_uni[test_index]
     
-    inputs = keras.Input(shape=(22, 100,), dtype = "float32")
+    inputs = keras.Input(shape=(100, 22,), dtype = "float32")
     x = layers.Bidirectional(layers.LSTM(256, return_sequences = True))(inputs)
     #x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
     x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
     x = layers.Flatten()(x)
-    outputs = layers.Dense(37, activation='sigmoid',
+    outputs = layers.Dense(14, activation='sigmoid',
                            kernel_regularizer=regularizers.l1_l2(l1=1e-5, l2=1e-4))(x)
     model = keras.Model(inputs, outputs)
     model.summary()
 
     model.compile("adam", "binary_crossentropy", metrics=["binary_accuracy", "binary_crossentropy"])
 #     model.fit(train_x, train_y, batch_size=16, epochs=2)#, validation_data=(x_val, y_val))    
-    for i in range(10):
-        model.fit(train_x, train_y, batch_size=32, epochs=3)
+    for i in range(20):
+        model.fit(train_x, train_y, batch_size=32, epochs=3, verbose=2)
         pred_y = model.predict(test_x)
+        
+        savemat('new_encoding_3106_res_' + str(count) + '_' + str(i) + '.mat', {'pred_y':pred_y, 'test_y':test_y})
 
         ap_list.append(avgprec(test_y, pred_y))
         rl_list.append(label_ranking_loss(test_y, pred_y))
@@ -114,12 +117,13 @@ for train_index, test_index in kf.split(Y_4802_uni):
         print('ap_list: {}'.format(ap_list))
         print('rl_list: {}'.format(rl_list))
         print('ce_list: {}'.format(ce_list))
+    count += 1
     
-ap_values = np.array(ap_list).reshape((5,10))
-rl_values = np.array(rl_list).reshape((5,10))
-ce_values = np.array(ce_list).reshape((5,10))
+ap_values = np.array(ap_list).reshape((5,20))
+rl_values = np.array(rl_list).reshape((5,20))
+ce_values = np.array(ce_list).reshape((5,20))
     
-with open('encoding_4802_uni.txt', 'w') as result_file:    
+with open('new_encoding_3106_uni.txt', 'w') as result_file:    
     result_file.write('the ap score is: \n')
     result_file.write(str(ap_values) + '\n')
     result_file.write('max is: {}'.format(np.amax(ap_values, axis = 1)) + '\n')    
