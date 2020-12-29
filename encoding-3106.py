@@ -25,9 +25,9 @@ from sklearn.metrics import coverage_error, label_ranking_loss
 
 num_folds = 5
     
-Y_4802 = loadmat('Y_4802.mat')['Y_4802']
+Y_4802 = loadmat('Y_3106.mat')['Y_3106']
 
-sequence = loadmat('dataset_4802.mat')['Sequence']
+sequence = loadmat('dataset_3106.mat')['Sequence']
 amino_code = {'A':0, 'C':1, 'D':2, 'E':3, 'F':4, 'G':5, 'H':6,
              'I':7, 'K':8, 'L':9, 'M':10, 'N':11, 'P':12, 
              'Q':13, 'R':14, 'S':15, 'T':16, 'U':17, 'V':18,
@@ -97,7 +97,7 @@ for train_index, test_index in kf.split(Y_4802_uni):
     #x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
     x = layers.Bidirectional(layers.LSTM(128, return_sequences = True))(x)
     x = layers.Flatten()(x)
-    outputs = layers.Dense(37, activation='sigmoid',
+    outputs = layers.Dense(14, activation='sigmoid',
                            kernel_regularizer=regularizers.l1_l2(l1=1e-5, l2=1e-4))(x)
     model = keras.Model(inputs, outputs)
     model.summary()
@@ -108,7 +108,7 @@ for train_index, test_index in kf.split(Y_4802_uni):
         model.fit(train_x, train_y, batch_size=32, epochs=3, verbose=2)
         pred_y = model.predict(test_x)
         
-        savemat('result_4802_' + str(count) + '_' + str(i) + '.mat', {'pred_y':pred_y, 'test_y':test_y})
+        savemat('result_3106_' + str(count) + '_' + str(i) + '.mat', {'pred_y':pred_y, 'test_y':test_y})
 
         ap_list.append(avgprec(test_y, pred_y))
         rl_list.append(label_ranking_loss(test_y, pred_y))
@@ -123,7 +123,7 @@ ap_values = np.array(ap_list).reshape((5,20))
 rl_values = np.array(rl_list).reshape((5,20))
 ce_values = np.array(ce_list).reshape((5,20))
     
-with open('new_encoding_4802_uni.txt', 'w') as result_file:    
+with open('new_encoding_3106_uni.txt', 'w') as result_file:    
     result_file.write('the ap score is: \n')
     result_file.write(str(ap_values) + '\n')
     result_file.write('max is: {}'.format(np.amax(ap_values, axis = 1)) + '\n')    
