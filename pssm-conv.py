@@ -168,7 +168,7 @@ ap_values = np.array(ap_list).reshape((5,10))
 rl_values = np.array(rl_list).reshape((5,10))
 ce_values = np.array(ce_list).reshape((5,10))
     
-with open('new_pssm_3106_conv.txt', 'w') as result_file:    
+with open('new_pssm_4802_conv.txt', 'w') as result_file:    
     result_file.write('the ap score is: \n')
     result_file.write(str(ap_values) + '\n')
     result_file.write('max is: {}'.format(np.amax(ap_values, axis = 1)) + '\n')    
