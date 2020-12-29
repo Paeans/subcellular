@@ -112,7 +112,7 @@ for train_index, test_index in kf.split(Y_4802_uni):
     x = layers.Conv2D(32, 3, activation='relu',
                       kernel_regularizer=regularizers.l1_l2(l1=1e-5, l2=1e-4))(x)
     x = layers.Flatten()(x)
-    outputs = layers.Dense(37, activation='sigmoid',
+    outputs = layers.Dense(14, activation='sigmoid',
                     kernel_regularizer=regularizers.l1_l2(l1=1e-5, l2=1e-4))(x)
     model = keras.Model(inputs, outputs)
     model.summary()
@@ -123,7 +123,7 @@ for train_index, test_index in kf.split(Y_4802_uni):
         model.fit(train_x, train_y, batch_size=32, epochs=3, verbose = 2)
         pred_y = model.predict(test_x)
         
-        savemat('result_large-reg-4802_' + str(count) + '_' + str(i) + '.mat', {'pred_y':pred_y, 'test_y':test_y})
+        savemat('result_large-reg-3106_' + str(count) + '_' + str(i) + '.mat', {'pred_y':pred_y, 'test_y':test_y})
 
         ap_list.append(avgprec(test_y, pred_y))
         rl_list.append(label_ranking_loss(test_y, pred_y))
