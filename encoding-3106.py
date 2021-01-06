@@ -27,7 +27,7 @@ num_folds = 5
     
 Y_4802 = loadmat('Y_3106.mat')['Y_3106']
 
-sequence = loadmat('dataset_3106.mat')['Sequence']
+sequence = loadmat('dataset_3106.mat')['sequence_3106']
 amino_code = {'A':0, 'C':1, 'D':2, 'E':3, 'F':4, 'G':5, 'H':6,
              'I':7, 'K':8, 'L':9, 'M':10, 'N':11, 'P':12, 
              'Q':13, 'R':14, 'S':15, 'T':16, 'U':17, 'V':18,
